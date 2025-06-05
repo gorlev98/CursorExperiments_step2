@@ -29,7 +29,4 @@ export class User {
   @ManyToOne(() => Company, company => company.users)
   @JoinColumn()
   company: Company;
-
-  @Column({ nullable: true })
-  companyId: number;
 } 

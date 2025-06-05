@@ -6,11 +6,10 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      db:
-        condition: service_healthy
+      - db
     environment:
       - DATABASE_HOST=db
-      - DATABASE_PORT=3306
+      - DATABASE_PORT=3308
       - DATABASE_USER=root
       - DATABASE_PASSWORD=password
       - DATABASE_NAME=myapp
@@ -26,11 +25,6 @@ services:
       - MYSQL_DATABASE=myapp
     volumes:
       - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
 
 volumes:
   mysql_data: 

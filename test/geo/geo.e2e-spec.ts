@@ -41,6 +41,7 @@ describe('GeoController (e2e)', () => {
   it('should get list of geo items', () => {
     return request(app.getHttpServer())
       .get('/geo')
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
       .expect((res) => {
         expect(Array.isArray(res.body.items)).toBe(true);
@@ -51,6 +52,7 @@ describe('GeoController (e2e)', () => {
   it('should get geo item by id', () => {
     return request(app.getHttpServer())
       .get(`/geo/${createdGeoId}`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
       .expect((res) => {
         expect(res.body.id).toBe(createdGeoId);
@@ -75,6 +77,7 @@ describe('GeoController (e2e)', () => {
   it('should get updated geo item by id', () => {
     return request(app.getHttpServer())
       .get(`/geo/${createdGeoId}`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
       .expect((res) => {
         expect(res.body.id).toBe(createdGeoId);
@@ -93,6 +96,7 @@ describe('GeoController (e2e)', () => {
   it('should get list to verify deletion', () => {
     return request(app.getHttpServer())
       .get('/geo')
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
       .expect((res) => {
         expect(Array.isArray(res.body.items)).toBe(true);

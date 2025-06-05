@@ -4,16 +4,11 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install --legacy-peer-deps
+RUN npm install
 
 COPY . .
 
-# Build the application
 RUN npm run build
-
-# Verify the build output and copy to the correct location
-RUN ls -la dist/ && \
-    cp -r dist/* ./
 
 EXPOSE 3000
 

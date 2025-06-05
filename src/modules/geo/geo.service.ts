@@ -5,7 +5,7 @@ import { GeoRepository } from './geo.repository';
 
 @Injectable()
 export class GeoService extends BaseService<Geo> {
-  constructor(private readonly geoRepository: GeoRepository) {
+  constructor(protected readonly geoRepository: GeoRepository) {
     super(geoRepository.repository);
   }
 

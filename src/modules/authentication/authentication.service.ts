@@ -1,4 +1,4 @@
-import { Injectable, ConflictException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, ConflictException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AuthenticationRepository } from './authentication.repository';
 import * as bcrypt from 'bcrypt';
@@ -23,7 +23,6 @@ export class AuthenticationService {
     const payload = { email: user.email, sub: user.id };
     return {
       access_token: this.jwtService.sign(payload),
-      user
     };
   }
 
@@ -34,27 +33,13 @@ export class AuthenticationService {
     }
 
     const passwordHash = await bcrypt.hash(registerDto.password, 10);
-    const user = await this.authRepository.create({
+    const auth = await this.authRepository.create({
       name: registerDto.name,
       email: registerDto.email,
       passwordHash,
     });
-
-    const { passwordHash: _, ...result } = user;
+    
+    const { passwordHash: _, ...result } = auth;
     return result;
-  }
-
-  async validateToken(token: string) {
-    try {
-      const payload = this.jwtService.verify(token);
-      const user = await this.authRepository.findOne(payload.sub);
-      if (!user) {
-        throw new UnauthorizedException('User not found');
-      }
-      const { passwordHash, ...result } = user;
-      return { user: result };
-    } catch (error) {
-      throw new UnauthorizedException('Invalid token');
-    }
   }
 } 

@@ -5,7 +5,7 @@ import { BaseService } from '../../common/base.service';
 
 @Injectable()
 export class AddressService extends BaseService<Address> {
-  constructor(private readonly addressRepository: AddressRepository) {
+  constructor(protected readonly addressRepository: AddressRepository) {
     super(addressRepository.repository);
   }
 } 

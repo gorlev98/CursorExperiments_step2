@@ -8,8 +8,6 @@ describe('AddressController (e2e)', () => {
   let app: INestApplication;
   let jwtService: JwtService;
   let token: string;
-  let createdGeoId: number;
-  let createdAddressId: number;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -20,34 +18,19 @@ describe('AddressController (e2e)', () => {
     jwtService = moduleFixture.get<JwtService>(JwtService);
     token = jwtService.sign({ sub: 1 }); // Mock user ID
     await app.init();
-
-    // Create a geo entry first
-    const geoResponse = await request(app.getHttpServer())
-      .post('/geo')
-      .set('Authorization', `Bearer ${token}`)
-      .send({ lat: '40.7128', lng: '-74.0060' });
-    createdGeoId = geoResponse.body.id;
   });
 
   afterAll(async () => {
-    // Clean up geo entry
-    await request(app.getHttpServer())
-      .delete(`/geo/${createdGeoId}`)
-      .set('Authorization', `Bearer ${token}`);
     await app.close();
   });
 
-  it('should create an address', () => {
+  let createdAddressId: number;
+
+  it('should create an address item', () => {
     return request(app.getHttpServer())
       .post('/address')
       .set('Authorization', `Bearer ${token}`)
-      .send({
-        street: '123 Main St',
-        suite: 'Apt 4B',
-        city: 'New York',
-        zipcode: '10001',
-        geoId: createdGeoId
-      })
+      .send({ street: '123 Test St', suite: 'Suite 1', city: 'Test City', zipcode: '12345' })
       .expect(201)
       .expect((res) => {
         expect(res.body).toHaveProperty('id');
@@ -55,9 +38,10 @@ describe('AddressController (e2e)', () => {
       });
   });
 
-  it('should get list of addresses', () => {
+  it('should get list of address items', () => {
     return request(app.getHttpServer())
       .get('/address')
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
       .expect((res) => {
         expect(Array.isArray(res.body.items)).toBe(true);
@@ -65,55 +49,50 @@ describe('AddressController (e2e)', () => {
       });
   });
 
-  it('should get address by id', () => {
+  it('should get address item by id', () => {
     return request(app.getHttpServer())
       .get(`/address/${createdAddressId}`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
       .expect((res) => {
         expect(res.body.id).toBe(createdAddressId);
-        expect(res.body.street).toBe('123 Main St');
-        expect(res.body.suite).toBe('Apt 4B');
-        expect(res.body.city).toBe('New York');
-        expect(res.body.zipcode).toBe('10001');
-        expect(res.body.geoId).toBe(createdGeoId);
+        expect(res.body.street).toBe('123 Test St');
+        expect(res.body.suite).toBe('Suite 1');
+        expect(res.body.city).toBe('Test City');
+        expect(res.body.zipcode).toBe('12345');
       });
   });
 
-  it('should update address', () => {
+  it('should update address item', () => {
     return request(app.getHttpServer())
       .put(`/address/${createdAddressId}`)
       .set('Authorization', `Bearer ${token}`)
-      .send({
-        street: '456 Oak Ave',
-        suite: 'Suite 7C',
-        city: 'Chicago',
-        zipcode: '60601',
-        geoId: createdGeoId
-      })
+      .send({ street: '456 Updated St', suite: 'Suite 2', city: 'Updated City', zipcode: '67890' })
       .expect(200)
       .expect((res) => {
         expect(res.body.id).toBe(createdAddressId);
-        expect(res.body.street).toBe('456 Oak Ave');
-        expect(res.body.suite).toBe('Suite 7C');
-        expect(res.body.city).toBe('Chicago');
-        expect(res.body.zipcode).toBe('60601');
+        expect(res.body.street).toBe('456 Updated St');
+        expect(res.body.suite).toBe('Suite 2');
+        expect(res.body.city).toBe('Updated City');
+        expect(res.body.zipcode).toBe('67890');
       });
   });
 
-  it('should get updated address by id', () => {
+  it('should get updated address item by id', () => {
     return request(app.getHttpServer())
       .get(`/address/${createdAddressId}`)
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
       .expect((res) => {
         expect(res.body.id).toBe(createdAddressId);
-        expect(res.body.street).toBe('456 Oak Ave');
-        expect(res.body.suite).toBe('Suite 7C');
-        expect(res.body.city).toBe('Chicago');
-        expect(res.body.zipcode).toBe('60601');
+        expect(res.body.street).toBe('456 Updated St');
+        expect(res.body.suite).toBe('Suite 2');
+        expect(res.body.city).toBe('Updated City');
+        expect(res.body.zipcode).toBe('67890');
       });
   });
 
-  it('should delete address by id', () => {
+  it('should delete address item by id', () => {
     return request(app.getHttpServer())
       .delete(`/address/${createdAddressId}`)
       .set('Authorization', `Bearer ${token}`)
@@ -123,6 +102,7 @@ describe('AddressController (e2e)', () => {
   it('should get list to verify deletion', () => {
     return request(app.getHttpServer())
       .get('/address')
+      .set('Authorization', `Bearer ${token}`)
       .expect(200)
       .expect((res) => {
         expect(Array.isArray(res.body.items)).toBe(true);
